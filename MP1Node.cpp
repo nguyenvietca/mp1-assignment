@@ -67,6 +67,7 @@ int MP1Node::enqueueWrapper(void *env, char *buff, int size) {
 void MP1Node::nodeStart(char *servaddrstr, short servport) {
     Address joinaddr;
     joinaddr = getJoinAddress();
+    
 
     // Self booting routines
     if( initThisNode(&joinaddr) == -1 ) {
@@ -163,6 +164,8 @@ int MP1Node::finishUpThisNode(){
    /*
     * Your code goes here
     */
+
+    return 0;
 }
 
 /**
@@ -218,6 +221,23 @@ bool MP1Node::recvCallBack(void *env, char *data, int size ) {
 	/*
 	 * Your code goes here
 	 */
+	  if (par->getcurrtime() > 3 && memberNode->memberList.size() > 1) {
+
+        memberNode->memberList.begin()->heartbeat++;
+        memberNode->memberList.begin()->timestamp = par->getcurrtime();
+
+        int pos = rand() % (memberNode->memberList.size() - 1) + 1;
+        MemberListEntry& member = memberNode->memberList[pos];
+
+        if (par->getcurrtime() - member.timestamp > TFAIL) {
+            return;
+        }
+
+        Address memberAddr;
+        memcpy(&memberAddr.addr[0], &member.id, sizeof(int));
+        memcpy(&memberAddr.addr[4], &member.port, sizeof(short));
+//gui lai data
+    }
 }
 
 /**
@@ -232,6 +252,7 @@ void MP1Node::nodeLoopOps() {
 	/*
 	 * Your code goes here
 	 */
+	 
 
     return;
 }
